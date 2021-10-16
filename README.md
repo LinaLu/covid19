@@ -14,12 +14,16 @@ Application that calculates the risk of hospitalization due to a covid-19.
 **Start the client**
 ```
 cd client
+yarn
 yarn run start
 ```
 
 **Start the server**
 ```
 cd server
+python3 -m venv .venv
+source ./.venv/bin/activate
+pip install -c requirements.txt
 python main.py
 ```
 
