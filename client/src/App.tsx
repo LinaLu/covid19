@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './App.css';
 import { styled } from '@mui/material/styles';
 import Image from './header.jpg'
-import { Box, Button, Container, Paper, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card } from '@mui/material';
+import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card, CardHeader, IconButton, CardMedia, CardContent, Typography, CardActions, Divider } from '@mui/material';
+import { Close } from '@material-ui/icons';
 
 const SubmitButton = styled(Button)(({ theme }) => ({
   background: 'linear-gradient(45deg, #8F8099 10%, #4A756D 90%)',
@@ -16,7 +17,7 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 
 function App() {
-  const [risk, setRisk] = useState<boolean>(false);
+  const [risk, setRisk] = useState<boolean | undefined>(undefined);
   const [gender, setGender] = useState<string>();
   const [age, setAge] = useState<number>();
 
@@ -36,27 +37,79 @@ function App() {
     })
   }
 
-  const handleGenderChange = (e: { target: any; }) => {
+  const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) : void=> {
     const target = e.target;
     if (target.checked) {
       setGender(target.value);
     }
   };
 
-  const handleAgeChange = (e: { target: any; }) => {
-    setAge(e.target.value);
+  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) : string => {
+    setAge(Number(e.target.value));
     return e.target.value;
   };
 
-  const RiskCard = () => {
+  const handleClose = () : void => {
+    setRisk(undefined);
+
+  };
+
+
+  const RiskCard = () : JSX.Element => {
     return (
-        <Card style={{padding: "30px"}}>
-          You gonna be fine
-        </Card>
+        <Card sx={{ minWidth: 345 ,padding: "30px"}}>
+          <CardHeader
+            action={
+              <IconButton aria-label="settings" onClick={handleClose}>
+                <Close/>
+              </IconButton>
+                 
+            }
+            title="RISK SCORE: "
+          />
+          <Divider />
+          <CardMedia
+            component="img"
+            height="194"
+            image=""
+            alt="Some graphs"
+          />
+          <CardContent>
+            <Typography> 
+              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
+                Low risk
+              </Typography>
+              <Typography  variant="body2" color="text.secondary" display="inline" >
+                Less than 3 percent risk
+              </Typography>
+            </Typography>
+            <Typography>
+              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
+                Medium risk
+              </Typography>
+              <Typography  variant="body2" color="text.secondary" display="inline">
+                Between 3-5 percent risk
+              </Typography>
+            </Typography>
+            <Typography>
+              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
+                High risk
+              </Typography>
+              <Typography  variant="body2" color="text.secondary" display="inline">
+                Greater than 5 percent risk
+              </Typography>
+            </Typography>
+          </CardContent>
+          <CardActions disableSpacing>
+          </CardActions>
+      
+    </Card>
+      
+        
     )
   }
 
-  const Age = () => {
+  const Age = () : JSX.Element => {
     return (
       <Stack
         direction="row"
@@ -73,7 +126,7 @@ function App() {
     )
   }
 
-  const Gender = () => {
+  const Gender = () : JSX.Element=> {
     return (
       <Stack
         direction="row"
