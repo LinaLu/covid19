@@ -3,7 +3,6 @@ import './App.css';
 import { styled } from '@mui/material/styles';
 import Image from './header.jpg'
 import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card, CardHeader, IconButton, CardMedia, CardContent, Typography, CardActions, Divider } from '@mui/material';
-import { Close } from '@material-ui/icons';
 
 const SubmitButton = styled(Button)(({ theme }) => ({
   background: 'linear-gradient(45deg, #8F8099 10%, #4A756D 90%)',
@@ -17,24 +16,24 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 
 function App() {
-  const [risk, setRisk] = useState<boolean | undefined>(undefined);
+  const [risk, setRisk] = useState<any>();
   const [gender, setGender] = useState<string>();
   const [age, setAge] = useState<number>();
 
   function calculateRisk() {
-    fetch("api/risk", {
+    fetch("/api/risk", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         age: age,
         gender: gender,
       })
-    }).then(() => {
-      setRisk(true);
     })
+    .then(response => response.json())
+    .then(data => { setRisk(data['risk']) })
   }
 
   const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) : void=> {
@@ -49,63 +48,11 @@ function App() {
     return e.target.value;
   };
 
-  const handleClose = () : void => {
-    setRisk(undefined);
-
-  };
-
-
   const RiskCard = () : JSX.Element => {
     return (
-        <Card sx={{ minWidth: 345 ,padding: "30px"}}>
-          <CardHeader
-            action={
-              <IconButton aria-label="settings" onClick={handleClose}>
-                <Close/>
-              </IconButton>
-                 
-            }
-            title="RISK SCORE: "
-          />
-          <Divider />
-          <CardMedia
-            component="img"
-            height="194"
-            image=""
-            alt="Some graphs"
-          />
-          <CardContent>
-            <Typography> 
-              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
-                Low risk
-              </Typography>
-              <Typography  variant="body2" color="text.secondary" display="inline" >
-                Less than 3 percent risk
-              </Typography>
-            </Typography>
-            <Typography>
-              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
-                Medium risk
-              </Typography>
-              <Typography  variant="body2" color="text.secondary" display="inline">
-                Between 3-5 percent risk
-              </Typography>
-            </Typography>
-            <Typography>
-              <Typography style={{ marginRight: 10 }} variant="h6" color="text.primary" display="inline">
-                High risk
-              </Typography>
-              <Typography  variant="body2" color="text.secondary" display="inline">
-                Greater than 5 percent risk
-              </Typography>
-            </Typography>
-          </CardContent>
-          <CardActions disableSpacing>
-          </CardActions>
-      
-    </Card>
-      
-        
+      <Card style={{padding: "30px"}}>
+        {risk}
+      </Card>
     )
   }
 
@@ -153,7 +100,7 @@ function App() {
       backgroundImage: `url(${Image})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat'}}>
-        
+
         <Box
           display="flex"
           justifyContent="center"
@@ -163,7 +110,7 @@ function App() {
           {risk ?
             <RiskCard/>
           :
-            <Stack spacing={2} style={{ 
+            <Stack spacing={2} style={{
               backgroundColor: "white",
               padding: "30px"
             }}>
