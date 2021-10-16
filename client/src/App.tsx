@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import { styled } from '@mui/material/styles';
 import Image from './header.jpg'
-import { Box, Button, Container, Paper, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card } from '@mui/material';
+import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card } from '@mui/material';
 
 const SubmitButton = styled(Button)(({ theme }) => ({
   background: 'linear-gradient(45deg, #8F8099 10%, #4A756D 90%)',
@@ -16,24 +16,24 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 
 
 function App() {
-  const [risk, setRisk] = useState<boolean>(false);
+  const [risk, setRisk] = useState<any>();
   const [gender, setGender] = useState<string>();
   const [age, setAge] = useState<number>();
 
   function calculateRisk() {
-    fetch("api/risk", {
+    fetch("/api/risk", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         age: age,
         gender: gender,
       })
-    }).then(() => {
-      setRisk(true);
     })
+    .then(response => response.json())
+    .then(data => { setRisk(data['risk']) })
   }
 
   const handleGenderChange = (e: { target: any; }) => {
@@ -51,7 +51,7 @@ function App() {
   const RiskCard = () => {
     return (
         <Card style={{padding: "30px"}}>
-          You gonna be fine
+          {risk}
         </Card>
     )
   }
@@ -100,7 +100,7 @@ function App() {
       backgroundImage: `url(${Image})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat'}}>
-        
+
         <Box
           display="flex"
           justifyContent="center"
@@ -110,7 +110,7 @@ function App() {
           {risk ?
             <RiskCard/>
           :
-            <Stack spacing={2} style={{ 
+            <Stack spacing={2} style={{
               backgroundColor: "white",
               padding: "30px"
             }}>
