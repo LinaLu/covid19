@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import './App.css';
 import { styled } from '@mui/material/styles';
 import Image from './header.jpg'
-import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField, Card, CardHeader, IconButton, CardMedia, CardContent, Typography, CardActions, Divider } from '@mui/material';
+import { Box, Button, Container, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, TextField,  IconButton,  Typography, Divider, Slide } from '@mui/material';
+import { Close } from '@material-ui/icons';
+import { Bar, XAxis, YAxis, CartesianGrid, Legend, ComposedChart, Cell, LabelList, Surface, Symbols, ContentRenderer, LabelProps } from 'recharts';
+
+
 
 const SubmitButton = styled(Button)(({ theme }) => ({
   background: 'linear-gradient(45deg, #8F8099 10%, #4A756D 90%)',
@@ -14,11 +18,18 @@ const SubmitButton = styled(Button)(({ theme }) => ({
   padding: '0 30px',
 }));
 
+const WhiteDivider = styled(Divider)(({ theme }) => ({
+  backgroundColor:"#313334"
+}));
+
 
 function App() {
   const [risk, setRisk] = useState<any>();
   const [gender, setGender] = useState<string>();
   const [age, setAge] = useState<number>();
+
+  const containerRef = React.useRef(null);
+
 
   function calculateRisk() {
     fetch("/api/risk", {
@@ -33,8 +44,13 @@ function App() {
       })
     })
     .then(response => response.json())
-    .then(data => { setRisk(data['risk']) })
+    .then(data => {    console.log('**data**', data, data['risk']);setRisk(data['risk']) })
   }
+
+
+  const handleClose = () : void=> {
+    setRisk(undefined);
+  };
 
   const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) : void=> {
     const target = e.target;
@@ -48,11 +64,115 @@ function App() {
     return e.target.value;
   };
 
-  const RiskCard = () : JSX.Element => {
+
+  const data = [
+    {
+      name: 'Covid',
+      risk: 4000,
+
+    },
+    {
+      name: 'Suicide ',
+      risk: 3000,
+
+    },
+    {
+      name: 'Murdered',
+      risk: 2000,
+
+    },
+  ]
+  
+  const Risk = () : JSX.Element => {
+  
+    const renderCusomizedLegend= () => {
+      return (
+        <Stack 
+          direction="row" 
+          style={{width: '100%',
+            margin: '1em 0',
+            justifyContent:'center',
+            paddingLeft:'25px'
+          }}
+        >
+          <Typography 
+          variant="h6" 
+          style={{
+            fontWeight: 600, 
+            letterSpacing:'0.031rem',
+            }}>
+        {`  Risk of death in percent `}
+      </Typography>
+        </Stack>
+        
+      )
+    }
+
     return (
-      <Card style={{padding: "30px"}}>
-        {risk}
-      </Card>
+      <Slide direction="up" in={risk} container={containerRef.current} mountOnEnter unmountOnExit>          
+        <Stack 
+          sx={{boxShadow: 8}}
+          spacing={2} 
+          style={{ 
+            minWidth: 345 ,
+            padding: "30px", 
+            backgroundColor: 'white', 
+            borderRadius:'8px',
+            }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="top">
+            <Box>
+              <Typography variant="h4" >
+                {`RISK SCORE: ${risk}`}
+              </Typography>
+            </Box>
+            <Box>
+              <IconButton 
+                onClick={handleClose} 
+                aria-label="settings"
+                style={{ 
+                  backgroundColor: '#EEEEEE' 
+                }}
+                >
+                <Close/>
+              </IconButton>
+            </Box>
+          </Stack>
+          <WhiteDivider   />
+
+          <ComposedChart
+            layout="vertical"
+            width={550} 
+            height={350} 
+            data={data} 
+            maxBarSize={ 20 } 
+            margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#313334" />
+            <XAxis stroke="#313334" type="number" />
+            <YAxis dataKey="name" type="category" stroke="#313334" scale="band" />
+        
+            <Legend verticalAlign="bottom" content={renderCusomizedLegend}/>
+            <Bar 
+              dataKey="risk" 
+              fill="#8884d8" 
+              background={{ fill: '#eee' }} 
+              radius={[0, 15, 15, 0]} 
+            >
+              {data.map((entry, index) => (
+                    <Cell cursor="pointer" fill={entry.name === 'Covid' ? '#82ca9d' : '#8884d8'} key={`cell-${index}`} />
+                  ))}
+              <LabelList dataKey={"risk"} position="top" />
+            </Bar>        
+          </ComposedChart>
+          
+      </Stack>
+    </Slide>
     )
   }
 
@@ -96,7 +216,7 @@ function App() {
   }
 
   return (
-    <Container style={{
+      <Container style={{
       backgroundImage: `url(${Image})`,
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat'}}>
@@ -107,12 +227,13 @@ function App() {
           alignItems="center"
           minHeight="100vh"
         >
-          {risk ?
-            <RiskCard/>
+          {risk ?          
+            <Risk/>          
           :
             <Stack spacing={2} style={{
               backgroundColor: "white",
-              padding: "30px"
+              padding: "30px",
+              borderRadius:"8px",
             }}>
               <Age />
               <Gender />
@@ -124,9 +245,12 @@ function App() {
             </Stack>
           }
         </Box>
-    </Container>
+    </Container>    
 
   );
 }
 
+
+
 export default App
+
