@@ -15,25 +15,28 @@ logger.info("Model loaded.")
 
 
 def risk_context(probability_of_death):
-    return {
-        'Drug poisoning': 0.05,
-        'Covid19': probability_of_death,
-        'Motor vehicle accident': 0.05
-    }
+    return [{"name": key, "covid": key == "Covid19", "value": value} for (key, value) in {
+        'Drug poisoning': 2000,
+        'Covid19': 3000,
+        'Motor vehicle accident': 4000
+    }.items()]
 
 
 @app.route('/api/risk', methods=['POST'])
 def calculate_covid_risk():
     parameters = request.json
     age = parameters.get("age", 0)
+    gender = parameters.get("gender", 0)
+    obese = parameters.get("obese", 0)
 
-    probabilities = covid_risk_model.predict_proba([[0, age, 0, 0, 0, 0, 0, 0]])
+    # Gender  (1 = Female 2 =male) / Neumonia / Age / Obese
+    probabilities = covid_risk_model.predict_proba([[gender, 0, age, obese]])
     probability_of_death = probabilities.tolist()[0][1]
     probability_of_death = round(probability_of_death, 5)
     
     return jsonify({
         'parameters': parameters,
-        'risk': {
+        'score': {
             'probabilityOfDeath': probability_of_death,
             'class': 'average',  # low high average
             'context': risk_context(probability_of_death)

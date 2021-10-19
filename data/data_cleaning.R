@@ -1,10 +1,11 @@
 library(tidyverse)
+library(dplyr)
 # raw data
 # https://www.kaggle.com/marianarfranklin/mexico-covid19-clinical-data
 # 
 df.covid_mexico.raw <- read.csv("http://raw.githubusercontent.com/marianarf/covid19_mexico_analysis/master/mexico_covid19.csv", 1)
 
-# drop columns that are not used by the model
+# Select columns that will be used by the model
 columns <- c("RESULTADO", "SEXO","FECHA_DEF","NEUMONIA","EDAD","EMBARAZO","DIABETES",      
              "ASMA","INMUSUPR","HIPERTENSION","CARDIOVASCULAR","OBESIDAD",    
              "TABAQUISMO")
@@ -38,5 +39,5 @@ nrow(filter(df.covid_mexico, TestResult == 0 & PatientOutcome == 1)) #1438
 df.covid_mexico <- filter(df.covid_mexico, TestResult == 0)
 df.covid_mexico <- within(df.covid_mexico, rm(TestResult))
 
-write.csv(df.covid_mexico, "mexico_covid19.csv", row.names = FALSE)
+# write.csv(df.covid_mexico, "mexico_covid19.csv", row.names = FALSE)
 
