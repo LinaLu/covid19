@@ -1,35 +1,40 @@
-import { Button, Checkbox, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, styled, TextField } from '@mui/material';
+import { InputAdornment } from '@material-ui/core';
+import { Button, Checkbox, FormControl, FormControlLabel, Radio, RadioGroup, Stack, TextField } from '@mui/material';
+import { format } from 'path';
 import React, { useEffect, useState } from 'react';
 
-const SubmitButton = styled(Button)(({ theme }) => ({
-    border: 0,
-    borderRadius: 3,    
-    height: 48,
-    padding: '0 30px',
-}));
 
+export interface ParametersProps {
+    setPayload: (payload:string) => void;
+    onSubmit: ()=> void;
+}
 
-function Parameters(props: any) {
+function Parameters({setPayload, onSubmit}: ParametersProps) {
+
     const [height, setHeight] = useState<number>();
     const [weight, setWeight] = useState<number>();
-    const [neumonia, setNeumonia] = useState<boolean>();
+    const [neumonia, setNeumonia] = useState<boolean>(false);
     const [gender, setGender] = useState<string>();
     const [age, setAge] = useState<number>();
     
     const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
 
     useEffect(() => {
-        props.setPayload(
-            JSON.stringify({
+        function formValues(): string {
+            return JSON.stringify({
                 age: age,
-                gender: gender == "male" ? 2 : 1,
+                gender: gender === "male" ? 2 : 1,
                 obesity: obesity(height, weight),
                 neumonia: neumonia ? 1 : 0
-            })
-        );
+            });
+        }
 
-        setSubmitEnabled([age, gender, weight, height].every(Boolean))
-    }, [age, height, weight, gender])
+        setPayload(formValues());
+
+        setSubmitEnabled([age, gender, weight, height, (neumonia !== undefined)].every(Boolean))
+    }, [age, height, weight, gender, neumonia, setPayload])
+
+
 
     function obesity(heightInCm?: number, weightInKg?: number ): boolean {
         if (heightInCm && weightInKg){
@@ -65,88 +70,90 @@ function Parameters(props: any) {
         return e.target.value;
     };
 
-    const handleNeumoniaChange = (e: React.ChangeEvent<HTMLInputElement>): string => {
+    const handleNeumoniaChange = (e: React.ChangeEvent<HTMLInputElement>): boolean => {
         const target = e.target;
         if (target.checked) {
             setNeumonia(true);
         }
-        return e.target.value;
+        return e.target.checked;
     };
-
 
     return (
         <Stack
-            component="form"
-            noValidate
-            autoComplete="off"
             spacing={2}
-            style={{
-                backgroundColor: "white",
-                padding: "30px",
-                borderRadius: "8px",
-            }}>
-            <Stack
-                direction="row"
-            >
-                <TextField
-                    onChange={handleAgeChange}
-                    id="age"
-                    label="Age"
-                    value={age}
-                    margin="normal"
-                />
-            </Stack>
-            <Stack
-                direction="row"
-            >
-                <TextField
-                    onChange={handleHeightChange}
-                    id="height"
-                    required
-                    label="Height"
-                    value={height}
-                    margin="normal"
-                />
-                <TextField
-                    onChange={handleWeightChange}
-                    name="weight"
-                    required
-                    label="Weight"
-                    value={weight}
-                    margin="normal"
-                />
-            </Stack>
-            <Checkbox
-                onChange={handleNeumoniaChange}
-                inputProps={{ 'aria-label': 'controlled' }}
-                />
-            <Stack
-                direction="row"
-            >
-                <FormControl component="fieldset">
-                    <FormLabel component="legend"></FormLabel>
+            sx={{ backgroundColor: 'white', borderRadius: '8px', padding:'30px'}}
+       >
+            <FormControl component="fieldset">
+                <Stack direction="row">
+                    <TextField
+                        autoComplete="off"
+                        onChange={handleAgeChange}
+                        label="Age"
+                        value={age || ''}
+                        margin="normal"
+                        required
+                    />
+                </Stack>
+                <Stack direction="row" sx={{mb: 2}}>
+                    <TextField
+                        autoComplete="off"
+                        onChange={handleHeightChange}
+                        label="Height"
+                        value={height || ''}
+                        margin="normal"
+                        required
+                        InputProps={{
+                            endAdornment: <InputAdornment position='end'>cm</InputAdornment>
+                           }}
+                        sx={{mr: 2}}
+                    />
+                    <TextField
+                        autoComplete="off"
+                        onChange={handleWeightChange}
+                        name="weight"
+                        label="Weight"
+                        value={weight|| ''} 
+                        margin="normal"
+                        required
+                        InputProps={{
+                            endAdornment: <InputAdornment position='end'>kg</InputAdornment>
+                           }}
+                        sx={{mr: 2}}
+                    />
+                </Stack>
+                
+                <Stack direction="row">
                     <RadioGroup
                         row
                         aria-label="gender"
                         name="radio-buttons-group"
                         onChange={handleGenderChange}
+                        sx={{mb: 2}}
                     >
                         <FormControlLabel value="male" control={<Radio />} label="Male" />
                         <FormControlLabel value="female" control={<Radio />} label="Female" />
                     </RadioGroup>
-                </FormControl>
-            </Stack>
-            <Stack direction="row">
-                {/* FIXME: DISABLE BUTTON IF NOT ALL FIELDS ARE FILLED IN */}
-                <SubmitButton 
-                    disabled={!submitEnabled} 
-                    onClick={props.onSubmit} 
-                    variant="contained"
-                    color="success">
-                    Calculate risk
-                </SubmitButton>            
-            </Stack>
-        </Stack>)
+                </Stack>
+
+                <Stack direction="row"  sx={{mb: 2}}>     
+                    <FormControlLabel 
+                        control={<Checkbox defaultChecked={false} onChange={(e)=> handleNeumoniaChange(e)} />} 
+                        label="Neumonia" 
+                    />
+                </Stack>
+                
+                <Stack direction="row">
+                    <Button 
+                        disabled={!submitEnabled} 
+                        onClick={onSubmit} 
+                        variant="contained"
+                        color="success">
+                        Calculate risk
+                    </Button>            
+                </Stack>
+            </FormControl>
+        </Stack>  
+        )
 }
 
 export default Parameters;

@@ -2,8 +2,33 @@ import React, { useState } from 'react';
 import Score from './Score';
 import Parameters from './Parameters';
 
-function App() {
-    const [risk, setRisk] = useState<any>();
+
+type Parameter = {
+    age: number
+    gender: number
+    neumonia: number
+    obesity: number
+};
+
+export type Risk = {
+    covid: boolean
+    name: string
+    vaue: number
+};
+
+type Score = {
+    class: string
+    context: Array<Risk>
+    probabilityOfDeath: number
+}
+
+export interface RiskResponse {
+    parameters: Parameter   
+    score: Score
+}
+
+function Risk() {
+    const [risk, setRisk] = useState<RiskResponse>();
     const [payload, setPayload] = useState<string>();
 
     function onSubmit() {
@@ -30,7 +55,5 @@ function App() {
     );
 }
 
-
-
-export default App
+export default Risk
 

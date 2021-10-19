@@ -17,7 +17,7 @@ function App() {
           alignItems="center"
           minHeight="100vh"
         >
-         <Risk/>
+          <Risk/>
         </Box>
     </Container>    
 
