@@ -1,4 +1,5 @@
 # Covid-19 Risk Analysis Client
+
 Application that calculates the risk of dying in the case of catching a covid-19 infection.
 
 # Prequisiste
@@ -26,6 +27,10 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 python main.py
 ```
+## Test an endpoint
+```
+$ curl -X POST "http://localhost:5000/api/risk" -H "Content-Type: application/json" -d '{"age": 90}' | jq
+```
 
 ### Docker compose
 
@@ -34,7 +39,7 @@ docker-compose up --build
 # Project summary
 
 ## Data ##
-The raw data can be downloaded  *[here](https://www.kaggle.com/marianarfranklin/mexico-covid19-clinical-data)* It consists roughly of 26 300 patient data, such as gender, age and different medical condition.
+The raw data can be downloaded *[here](http://raw.githubusercontent.com/marianarf/covid19_mexico_analysis/master/mexico_covid19.csv)* It consists roughly of 26 300 patient data, such as gender, age and different medical condition.
 The data cleaning are done in a R-script *(data/data_cleaning.R)*.
 From the raw data only records with patient that has died from Covid19 is kept (4542), and this subset of data are used to build our model, that will predict the likelihood for dying in a Covid-19 infection.
 
@@ -65,10 +70,11 @@ The resulting features used to train the model are following:
 - Age
 - Gender  
 - Neumonia       
-- Obese 
+- Obese
 
 
 **Start jupyter notebook**
+
 Ensure the server is running to run the jupyter notebook.
 
 ```
@@ -77,6 +83,7 @@ $ jupyter notebook
 ```
 
 # Save and test the trained model
+
 The trained model need to be saved in the folder **server** in order to run a quick sanity py-test.
 Anytime the model is retrained or modify, the new model need to be manually moved to the folder.
 
@@ -89,7 +96,7 @@ cp ./data/covid19_model_to_be_tested.sav
 
 # Architecture
 
-Architecture![Tux, the Linux mascot](/client/public/architecture.png)
+Architecture![Architecture](/client/public/architecture.jpg)
 
 # Improvements
 Naturally the selection of model and features selection deserve much more time and finetuning, than what has been given in this ad hoc project.

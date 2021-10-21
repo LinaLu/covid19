@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Score from './Score';
 import Parameters from './Parameters';
 
-
 type Parameter = {
     age: number
     gender: number
@@ -13,10 +12,10 @@ type Parameter = {
 export type Risk = {
     covid: boolean
     name: string
-    vaue: number
+    value: number
 };
 
-type Score = {
+type ScoreProbability = {
     class: string
     context: Array<Risk>
     probabilityOfDeath: number
@@ -24,26 +23,33 @@ type Score = {
 
 export interface RiskResponse {
     parameters: Parameter   
-    score: Score
+    score: ScoreProbability
 }
 
-function Risk() {
+
+function RenderRisk() {
     const [risk, setRisk] = useState<RiskResponse>();
     const [payload, setPayload] = useState<string>();
 
-    function onSubmit() {
-        fetch("/api/risk", {
+    async function onSubmit() {
+        await fetch("/api/risk", {
             method: "POST",
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             },
             body: payload,                         
+        }).then(response => {
+            if (!response.ok) { throw response }
+            return response.json()
+        }).then((data) => {
+            setRisk(data);            
+        }).catch( (err) => {
+            alert('Oops, something went wrong.');
         })
-        .then(response => response.json())
-        .then(data => { setRisk(data) })
-    }
-
+        
+    };
+    
     const handleClose = (): void => {
         setRisk(undefined);
     };   
@@ -55,5 +61,5 @@ function Risk() {
     );
 }
 
-export default Risk
+export default RenderRisk
 

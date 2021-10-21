@@ -1,7 +1,7 @@
 import pickle
 from flask import Flask, jsonify, request
 from collections import OrderedDict
-from itertools import chain, islice
+from itertools import islice
 
 def load_model():
     return pickle.load(open('covid19_model_v1.sav', 'rb'))
@@ -48,7 +48,7 @@ def risk_context(probability_of_death):
                     {**item, **dict([p_item])}.items()]
 
         n_key, n_value = n_item
-        print( {**dict([p_item]), **item, **dict([n_item])})
+
         if p_value > probability_of_death > n_value:
             return [{"name": key, "covid": key == "Covid19", "value": value} for (key, value) in
                     {**dict([p_item]), **item, **dict([n_item])}.items()]
@@ -75,7 +75,6 @@ def calculate_covid_risk():
         },
 
     })
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5000)
