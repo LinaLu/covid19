@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { Box, Stack, IconButton, Typography, Slide, Divider, styled } from '@mui/material';
-import { Close } from '@material-ui/icons';
 import { Bar, XAxis, YAxis, CartesianGrid, Legend, ComposedChart, Cell, LabelList } from 'recharts';
 import { RiskResponse } from './Risk';
+import { Close } from '@mui/icons-material';
 
 const WhiteDivider = styled(Divider)(({ theme }) => ({
     backgroundColor: "#313334"

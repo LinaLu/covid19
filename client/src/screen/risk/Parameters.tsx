@@ -1,13 +1,16 @@
-import { InputAdornment } from '@material-ui/core';
-import { Info } from '@material-ui/icons';
-import { Button, Checkbox, FormControl, FormControlLabel, IconButton, Radio, RadioGroup, Stack, TextField, Tooltip } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Box, Button, IconButton, InputAdornment, Stack, Tooltip } from '@mui/material';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { FormInputCheckbox } from '../../components/FormInputCheckbox';
+import { FormInputRadio } from '../../components/FormInputRadio';
+import { FormInputText } from '../../components/FormTextInput';
+import { FormInput } from '../../domain/types';
 import Disclaimer from '../disclaimer/Disclaimer';
-
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+import { Info } from '@mui/icons-material';
 
 export interface ParametersProps {
     setPayload: (payload: string) => void;
-    onSubmit: () => void;
 }
 
 export interface ErrorMessage {
@@ -16,74 +19,26 @@ export interface ErrorMessage {
     weight?: string;
 }
 
-function Parameters({ setPayload, onSubmit }: ParametersProps) {
+const validationSchema = Yup.object().shape({
+    age: Yup.number().typeError('Age should be a number').integer('age should be an integer').positive('Age should positive').max(300, "Age needs to be reasonable").required('Age is required'),
+    height: Yup.number().typeError('Height should be anumber').integer('Height should be an integer').positive('Height should be positive').max(300, "Height needs to be reasonable").required('Height is required'),
+    weight: Yup.number().typeError('Weight should be anumber').integer('Weight should be an integer').positive('Weight should be positive').max(1000, "Weight needs to be reasonable").required('Weight is required')
+});
 
-    const [height, setHeight] = useState<number>();
-    const [weight, setWeight] = useState<number>();
-    const [neumonia, setNeumonia] = useState<boolean>(false);
-    const [gender, setGender] = useState<string>();
-    const [age, setAge] = useState<number>();
+function Parameters({ setPayload }: ParametersProps) {
 
-    const [submitEnabled, setSubmitEnabled] = useState<boolean>(false);
+    const {control, handleSubmit, formState: { errors } } = useForm<FormInput>(
+        {resolver: yupResolver(validationSchema)}
+    );
 
-    const [errorMessage, setErrorMessage] = useState<ErrorMessage>({});
-
-    const validateInput = (): boolean => {
-
-        if (age && 0 > age) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                age: 'Age must be positive'
-            }));
-        } else if (age && age > 300) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                age: 'Age must be less than 300'
-            }));
-        } else if (height && 0 > height) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                height: 'Height must be positive'
-            }));
-
-        } else if (height && height > 400) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                height: 'Height must be less than 400'
-            }));
-        } else if (weight && 0 > weight) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                weight: 'Weight must be positive'
-            }));
-
-        } else if (weight && weight > 1000) {
-            setErrorMessage((prevState) => ({
-                ...prevState,
-                weight: 'Weight must be less than 1000kg'
-            }));
-        } else {
-            setErrorMessage({});
-            return true;
-        }
-
-        return false;
+    const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
+        setPayload(JSON.stringify({
+            age: data.age,
+            gender: parseInt(data.gender),
+            obesity: obesity(data.height, data.weight),
+            neumonia: data.neumonia ? 1 : 0
+        }));
     }
-
-    useEffect(() => {
-        function formValues(): string {
-            return JSON.stringify({
-                age: age,
-                gender: gender === "male" ? 2 : 1,
-                obesity: obesity(height, weight),
-                neumonia: neumonia ? 1 : 0
-            });
-        }
-
-        const isValid = validateInput();
-        setPayload(formValues());
-        setSubmitEnabled([age, gender, weight, height, (neumonia !== undefined), isValid].every(Boolean))
-    }, [age, height, weight, gender, neumonia, setPayload])
 
     function obesity(heightInCm?: number, weightInKg?: number): boolean {
         if (heightInCm && weightInKg) {
@@ -95,118 +50,72 @@ function Parameters({ setPayload, onSubmit }: ParametersProps) {
         }
     }
 
-    const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const target = e.target;
-        if (target.checked) {
-            setGender(target.value);
-        }
-    };
-
-    const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>): string => {
-        e.preventDefault();
-        setAge(Number(e.target.value));
-        return e.target.value;
-    };
-
-    const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>): string => {
-        setWeight(Number(e.target.value));
-        return e.target.value;
-    };
-
-    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>): string => {
-        setHeight(Number(e.target.value));
-        return e.target.value;
-    };
-
-    const handleNeumoniaChange = (e: React.ChangeEvent<HTMLInputElement>): boolean => {
-        const target = e.target;
-        if (target.checked) {
-            setNeumonia(true);
-        }
-        return e.target.checked;
-    };
-
-
     return (
         <Stack
             spacing={2}
             sx={{ backgroundColor: 'white', borderRadius: '8px', padding: '30px' }}
         >
-            <FormControl component="fieldset">
-                <Stack direction="row">
-                    <TextField
-                        error={errorMessage.age !== undefined}
-                        helperText={errorMessage.age}
+             <Box
+                component="form"
+                noValidate
+                autoComplete="off"
+                onSubmit={handleSubmit(onSubmit)}
+                >     
+                <Stack direction="row" sx={{ m: 1 }}>           
+                <FormInputText name="age" control={control} label="Age">
+                    <div className="invalid-age">{errors.age?.message}</div>  
+                </FormInputText>   
+                </Stack>      
+                 <Stack direction="row" spacing={1} sx={{ m: 1 }}>
+                    <FormInputText 
+                        name="height" 
+                        control={control} 
+                        label="Height" 
                         autoComplete="off"
-                        onChange={handleAgeChange}
-                        label="Age"
-                        value={age || ''}
-                        margin="normal"
-                        required
-                        sx={{ width: 180 }}
-
-                    />
-                </Stack>
-                <Stack direction="row" sx={{ mb: 2 }}>
-                    <TextField
-                        error={errorMessage.height !== undefined}
-                        helperText={errorMessage.height}
-                        autoComplete="off"
-                        onChange={handleHeightChange}
-                        label="Height"
-                        value={height || ''}
-                        margin="normal"
-                        required
+                        required      
                         InputProps={{
                             endAdornment: <InputAdornment position='end'>cm</InputAdornment>
                         }}
                         sx={{ mr: 2, width: 180 }}
-                    />
-                    <TextField
-                        error={errorMessage.weight !== undefined}
-                        helperText={errorMessage.weight}
-                        autoComplete="off"
-                        onChange={handleWeightChange}
-                        name="weight"
-                        label="Weight"
-                        value={weight || ''}
-                        margin="normal"
-                        required
-                        InputProps={{
-                            endAdornment: <InputAdornment position='end'>kg</InputAdornment>
-                        }}
-                        sx={{ mr: 2, width: 180 }}
-                    />
-                </Stack>
-
-                <Stack direction="row">
-                    <RadioGroup
-                        row
-                        aria-label="gender"
-                        name="radio-buttons-group"
-                        onChange={handleGenderChange}
-                        sx={{ mb: 2 }}
                     >
-                        <FormControlLabel value="male" control={<Radio />} label="Male" />
-                        <FormControlLabel value="female" control={<Radio />} label="Female" />
-                    </RadioGroup>
+                        <div className="invalid-height">{errors.height?.message}</div>  
+                    </FormInputText>
+                    <FormInputText 
+                        name="weight" 
+                        control={control} 
+                        label="Weight" 
+                        autoComplete="off"
+                        required      
+                        InputProps={{
+                            endAdornment: <InputAdornment position='end'>cm</InputAdornment>
+                        }}
+                        sx={{ mr: 2, width: 180 }}>
+                        <div className="invalid-weight">{errors.weight?.message}</div>  
+                    </FormInputText>
                 </Stack>
-
-                <Stack direction="row" sx={{ mb: 2 }}>
-                    <FormControlLabel
-                        control={<Checkbox defaultChecked={false} onChange={(e) => handleNeumoniaChange(e)} />}
-                        label="Neumonia"
-                    />
+                <Stack direction="row" sx={{ m: 1 }}>
+                   <FormInputRadio 
+                        name={"gender"} 
+                        control={control} 
+                        label={"Radio Label"}              
+                        options={[
+                            {value: "1", label: "Female"},
+                            {value: "2", label: "Male"}
+                        ]}>
+                         <div className="invalid-gender">{errors.gender?.message}</div>  
+                    </FormInputRadio>                         
                 </Stack>
-
-                <Stack direction="row" justifyContent={"space-between"}>
-                    <Button
-                        disabled={!submitEnabled}
-                        onClick={onSubmit}
-                        variant="contained"
-                        color="success">
-                        Calculate risk
-                    </Button>
+                <Stack direction="row" sx={{ m: 1 }}>
+                    <FormInputCheckbox name={"neumonia"} label="Neumonia" control={control} />
+                </Stack>  
+                <Stack direction="row" sx={{ m: 1 }} justifyContent={"space-between"}>
+                    <Button                                               
+                    type="submit"
+                    variant="contained"
+                    color="success"                        
+                >
+                    Calculate risk      
+                </Button>                        
                     <Tooltip
                         title={<Disclaimer />}
                         describeChild
@@ -220,7 +129,7 @@ function Parameters({ setPayload, onSubmit }: ParametersProps) {
                         </IconButton>
                     </Tooltip>
                 </Stack>
-            </FormControl>
+            </Box>
         </Stack>
     )
 }

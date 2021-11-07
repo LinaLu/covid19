@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Score from './Score';
 import Parameters from './Parameters';
 
@@ -30,25 +30,30 @@ export interface RiskResponse {
 function RenderRisk() {
     const [risk, setRisk] = useState<RiskResponse>();
     const [payload, setPayload] = useState<string>();
-
-    async function onSubmit() {
-        await fetch("/api/risk", {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-            body: payload,                         
-        }).then(response => {
-            if (!response.ok) { throw response }
-            return response.json()
-        }).then((data) => {
-            setRisk(data);            
-        }).catch( (err) => {
-            alert('Oops, something went wrong.');
-        })
+    
+    useEffect(() => {
+        const fetchRisk = async () => {
+            await fetch("/api/risk", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: payload,                         
+            }).then(response => {
+                if (!response.ok) { throw response }
+                return response.json()
+            }).then((data) => {
+                setRisk(data);            
+            }).catch( (err) => {
+                alert('Oops, something went wrong.');
+            })
+        }
         
-    };
+        if (payload){
+            fetchRisk();
+        }
+    }, [payload, setRisk]);
     
     const handleClose = (): void => {
         setRisk(undefined);
@@ -57,9 +62,8 @@ function RenderRisk() {
     return (
         risk ? 
         <Score risk={risk} handleClose={handleClose}/> : 
-        <Parameters onSubmit={onSubmit} setPayload={setPayload}/>
+        <Parameters setPayload={setPayload}/>
     );
 }
 
 export default RenderRisk
-

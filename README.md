@@ -27,6 +27,9 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 python main.py
 ```
+Flask is by default running on port 5000.
+Visit: http://192.168.1.197:5000
+
 ## Test an endpoint
 ```
 $ curl -X POST "http://localhost:5000/api/risk" -H "Content-Type: application/json" -d '{"age": 90}' | jq
@@ -101,7 +104,7 @@ Architecture![Architecture](/client/public/architecture.jpg)
 # Improvements
 - Naturally the selection of model and features selection deserve much more time and fine-tuning, than what has been given in this ad hoc project.
 - The UI is simplistic and missing some obvious end-user features such as hotlinking, social media, inforimation regarding the covid vaccinations in country... to name a few.
-- Backend is storing most of the data hard-coded, which could be trasferred to a database. 
+- Backend is storing most of the data hard-coded, which could be trasferred to a database.
 
 # Disclaimer
 The app, including but not limited to, text, graphics, images and other material contained on this website are for informational purposes only. No material on this site is intended to be a substitute for professional medical advice, diagnosis or treatment. Always seek the advice of your physician or other qualified health care provider with any questions you may have regarding a medical condition or treatment and never disregard professional medical advice or delay in seeking it because of something due to this app.
