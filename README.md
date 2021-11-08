@@ -27,8 +27,8 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 python main.py
 ```
-Flask is by default running on port 5000.
-Visit: http://192.168.1.197:5000
+Flask (and swagger) is by default running on port 5000.
+Visit: http://localhost:5000
 
 ## Test an endpoint
 ```
@@ -62,7 +62,7 @@ Initially below features where kept as potential candidates for the model featur
 
 
 # Data model
-The data model are build and trained using jupyter notebook(**data/model_discovery.ipynb**).
+The data model is build and trained using jupyter notebook(**data/model_discovery.ipynb**).
 NA values for pregnancy are imputed by the median value along all data.
 Since the target variable is binary _(surviving or not surviving Covid-19)_, the logistic regression is used.
 
@@ -103,7 +103,7 @@ Architecture![Architecture](/client/public/architecture.jpg)
 
 # Improvements
 - Naturally the selection of model and features selection deserve much more time and fine-tuning, than what has been given in this ad hoc project.
-- The UI is simplistic and missing some obvious end-user features such as hotlinking, social media, inforimation regarding the covid vaccinations in country... to name a few.
+- The UI is simplistic and missing some obvious end-user features such as hotlinking, social media, information regarding the covid vaccinations in country... to name a few.
 - Backend is storing most of the data hard-coded, which could be trasferred to a database.
 
 # Disclaimer
