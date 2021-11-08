@@ -2,7 +2,6 @@ from pytest import approx
 
 # Gender  (1 = Female 2 =male) / Neumonia / Age / Obese
 
-
 def test_an_young_person_has_a_low_probability_of_hospitalization(test_model):
     probabilities = test_model.predict_proba([[0, 0, 20, 0]])
     probability_of_death = probabilities.tolist()[0][1]
